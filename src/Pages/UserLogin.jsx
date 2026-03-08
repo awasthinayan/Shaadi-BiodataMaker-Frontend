@@ -1,10 +1,12 @@
 import { useLogin } from "../Hooks/UseAuth";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
     const navigate = useNavigate();
     const { mutate, isPending, isError, error } = useLogin();
+    const [showPassword, setShowPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         email: "",
@@ -72,21 +74,32 @@ const Login = () => {
 
                     {/* Password Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="**********"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200 outline-none"
-                        />
-                    </div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Password
+                            </label>
 
-                    {/* Remember Me & Forgot Password */}
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="**********"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200 outline-none"
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors hover:cursor-pointer"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
+                        </div>
+
+                    {/* Remember Me & Forgot Password
                     <div className="flex items-center justify-between">
                         <label className="flex items-center cursor-pointer">
                             <input
@@ -98,7 +111,7 @@ const Login = () => {
                         <a href="#" className="text-sm text-pink-600 hover:underline">
                             Forgot Password?
                         </a>
-                    </div>
+                    </div> */}
 
                     {/* Login Button */}
                     <button

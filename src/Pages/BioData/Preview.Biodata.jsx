@@ -370,7 +370,7 @@ export default function PreviewBiodata() {
     <div className="min-h-screen bg-stone-100">
       {/* Action Bar */}
       <div className="print:hidden bg-white border-b border-stone-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-stone-500 hover:text-stone-800 text-sm font-medium transition-colors">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-stone-500 hover:text-stone-800 text-sm font-medium transition-colors hover:cursor-pointer">
           ← Back
         </button>
         <h1 className="text-sm font-bold text-stone-700 truncate max-w-xs">
@@ -378,17 +378,17 @@ export default function PreviewBiodata() {
         </h1>
         <div className="flex items-center gap-2">
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate(`/edit/${id}`)}
-            className="px-3 py-1.5 text-xs font-semibold text-stone-600 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
+            className="px-3 py-1.5 text-xs font-semibold text-stone-600 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors hover:cursor-pointer">
             ✏️ Edit
           </motion.button>
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => window.print()}
-            className="px-3 py-1.5 text-xs font-semibold text-stone-600 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
+            className="px-3 py-1.5 text-xs font-semibold text-stone-600 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors hover:cursor-pointer">
             🖨️ Print
           </motion.button>
-          <motion.button whileTap={{ scale: 0.97 }} onClick={handleDownloadPDF}
+          {/* <motion.button whileTap={{ scale: 0.97 }} onClick={handleDownloadPDF}
             className="px-3 py-1.5 text-xs font-semibold bg-rose-800 hover:bg-rose-900 text-white rounded-lg transition-colors shadow-sm">
             ⬇️ PDF
-          </motion.button>
+          </motion.button> */}
         </div>
       </div>
 
