@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -6,13 +6,25 @@ export default function Navbar() {
   const navigate  = useNavigate();
   const location  = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState({});
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const user      = JSON.parse(localStorage.getItem('user') || '{}') || {};
-  const isLoggedIn = Boolean(localStorage.getItem('token'));
+  // ✅ Read localStorage AFTER component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    setTimeout(() => {
+    setIsLoggedIn(Boolean(token));
+    setUser(userData);
+    }, 0);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    setUser({});
     navigate('/login');
   };
 
