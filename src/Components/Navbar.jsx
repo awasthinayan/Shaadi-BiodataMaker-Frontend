@@ -110,7 +110,7 @@ export default function Navbar() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={handleLogout}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-stone-200 hover:cursor-pointer"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-stone-200"
                 >
                   <span>🚪</span>
                   Logout

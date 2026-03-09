@@ -253,7 +253,24 @@ export default function Dashboard() {
   const { data: biodatas, isLoading, isError } = useGetAllBiodata();
   const { mutate: deleteBiodata, isPending: isDeleting } = useDeleteBiodata();
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}') || {};
+  // ✅ SAFE user parsing with try-catch
+  const user = (() => {
+    try {
+      const userData = localStorage.getItem('user');
+      
+      // Check if userData is null, undefined, or the string "undefined"
+      if (!userData || userData === 'undefined' || userData === 'null') {
+        return { name: 'User' };
+      }
+      
+      // Parse the JSON
+      return JSON.parse(userData);
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      return { name: 'User' };
+    }
+  })();
+
   const totalBiodatas  = biodatas?.length || 0;
   const completedCount = biodatas?.filter((b) => b.isComplete).length || 0;
   const draftCount     = totalBiodatas - completedCount;

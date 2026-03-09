@@ -26,8 +26,13 @@ const Login = () => {
 
         mutate(formData, {
             onSuccess: (response) => {
+                // ✅ SAVE BOTH TOKEN AND USER DATA
                 const token = response.data.token;
+                const user = response.data.user;
+                
                 localStorage.setItem("token", token);
+                localStorage.setItem("user", JSON.stringify(user));
+                
                 alert("Login Successful ❤️");
                 navigate("/dashboard");
             },
