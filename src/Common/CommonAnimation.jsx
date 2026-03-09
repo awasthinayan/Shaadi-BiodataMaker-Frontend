@@ -7,98 +7,92 @@ const Common = ({ children }) => {
   const stairParentRef = useRef(null);
   const pageRef = useRef(null);
   const location = useLocation();
+  const tlRef = useRef(null);
 
   useLayoutEffect(() => {
-    if (!containerRef.current || !stairParentRef.current || !pageRef.current) {
-      return;
+    if (!stairParentRef.current || !pageRef.current) return;
+
+    // Kill any existing timeline
+    if (tlRef.current) {
+      tlRef.current.kill();
     }
 
-    const waitForPaint = () =>
-      new Promise((res) =>
+    const animate = async () => {
+      // Wait for paint
+      await new Promise((res) =>
         requestAnimationFrame(() => requestAnimationFrame(res))
       );
 
-    let ctx;
-    let tl;
+      // Reset everything
+      gsap.set(stairParentRef.current, {
+        display: "block",
+        pointerEvents: "auto",
+        zIndex: 9999,
+      });
 
-    (async () => {
-      try {
-        await waitForPaint();
+      gsap.set(".stairs", {
+        height: "100%",
+        y: "0%",
+      });
 
-        ctx = gsap.context(() => {
-          // Ensure initial CSS states
-          gsap.set(stairParentRef.current, {
-            display: "block",
-            pointerEvents: "auto",
-            zIndex: 9999,
-          });
+      gsap.set(pageRef.current, {
+        opacity: 0,
+        scale: 1.05,
+      });
 
-          gsap.set(".stairs", {
-            height: "100%",
-            y: "0%",
-            overflow: "hidden",
-          });
+      // Create timeline
+      const tl = gsap.timeline();
 
-         // timeline
-tl = gsap.timeline({
-  defaults: { ease: "power2.inOut", duration: 0.6 },
-});
+      tl.from(".stairs", {
+        height: 0,
+        duration: 0.6,
+        ease: "power2.inOut",
+        stagger: { amount: -0.2 },
+      })
+        .to(
+          ".stairs",
+          {
+            y: "100%",
+            duration: 0.6,
+            ease: "power2.inOut",
+            stagger: { amount: -0.2 },
+          },
+          "+=0.05"
+        )
+        .set(stairParentRef.current, {
+          display: "none",
+          pointerEvents: "none",
+        })
+        .to(
+          pageRef.current,
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          "-=0.2"
+        );
 
-// Ensure page starts hidden
-gsap.set(pageRef.current, { opacity: 0, scale: 1.05 });
+      tlRef.current = tl;
+    };
 
-// reveal the bars from height 0 -> full
-tl.from(".stairs", {
-  height: 0,
-  stagger: { amount: -0.2 },
-});
+    animate().catch(console.error);
 
-// slide bars down (cover)
-tl.to(
-  ".stairs",
-  {
-    y: "100%",
-    stagger: { amount: -0.2 },
-  },
-  "+=0.05"
-);
-
-// hide overlay
-tl.set(stairParentRef.current, {
-  display: "none",
-  pointerEvents: "none",
-});
-
-// animate page content IN
-tl.to(
-  pageRef.current,
-  {
-    opacity: 1,
-    scale: 1,
-    duration: 0.6,
-    ease: "power2.out",
-  },
-  "-=0.2"
-);
-        }, containerRef);
-      } catch (error) {
-        console.error("Animation error:", error);
-      }
-    })();
-
+    // Cleanup
     return () => {
-      if (ctx) ctx.revert();
-      if (tl) tl.kill();
+      if (tlRef.current) {
+        tlRef.current.kill();
+      }
     };
   }, [location.pathname]);
 
   return (
     <div ref={containerRef}>
-      {/* Transition Overlay */}
       <div
         ref={stairParentRef}
-        className="h-screen w-full fixed top-0 left-0 pointer-events-none"
-        style={{ display: "none", zIndex: 9999 }}
+        className="h-screen w-full fixed top-0 left-0"
+        style={{ display: "block", zIndex: 9999, pointerEvents: "none" }}
       >
         <div className="h-full w-full flex">
           <div className="stairs h-full w-1/5 bg-black"></div>
@@ -110,10 +104,7 @@ tl.to(
         </div>
       </div>
 
-      {/* Page Content */}
-      <div ref={pageRef}>
-        {children}
-      </div>
+      <div ref={pageRef}>{children}</div>
     </div>
   );
 };

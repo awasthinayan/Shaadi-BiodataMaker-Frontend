@@ -158,7 +158,7 @@ const Register = () => {
 
                     {/* Footer */}
                     <div className="text-center text-xs text-gray-500 mt-8 pt-6 border-t border-gray-200">
-                        <p>Shaade@Biodata</p>
+                        <p>Shaadi@Biodata</p>
                         <a
                             href="mailto:info@inityagency"
                             className="text-gray-400 hover:text-pink-600 transition"
