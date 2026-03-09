@@ -253,20 +253,27 @@ export default function Dashboard() {
   const { data: biodatas, isLoading, isError } = useGetAllBiodata();
   const { mutate: deleteBiodata, isPending: isDeleting } = useDeleteBiodata();
 
-  // ✅ SAFE user parsing with try-catch
+  // ✅ SAFE user parsing - LAZY INITIALIZER style
   const user = (() => {
     try {
       const userData = localStorage.getItem('user');
       
-      // Check if userData is null, undefined, or the string "undefined"
-      if (!userData || userData === 'undefined' || userData === 'null') {
-        return { name: 'User' };
+      let parsedUser = { name: 'User' };
+      if (userData && userData !== 'undefined' && userData !== 'null' && userData.length > 2) {
+        try {
+          const parsed = JSON.parse(userData);
+          parsedUser = {
+            name: parsed?.name || parsed?.fullName || 'User',
+            email: parsed?.email || ''
+          };
+        } catch {
+          parsedUser = { name: 'User' };
+        }
       }
       
-      // Parse the JSON
-      return JSON.parse(userData);
-    } catch (e) {
-      console.error('Error parsing user data:', e);
+      return parsedUser;
+    } catch (error) {
+      console.error('Error reading user data:', error);
       return { name: 'User' };
     }
   })();

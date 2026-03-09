@@ -1,30 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState({});
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // ✅ Read localStorage AFTER component mounts
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    setTimeout(() => {
-    setIsLoggedIn(Boolean(token));
-    setUser(userData);
-    }, 0);
-  }, []);
+  
+  // ✅ LAZY INITIALIZER - reads localStorage during state init
+  const [auth, setAuth] = useState(() => {
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      
+      let parsedUser = { name: 'User', email: '' };
+      
+      if (userData && userData !== 'undefined' && userData !== 'null' && userData.length > 2) {
+        try {
+          const parsed = JSON.parse(userData);
+          // ✅ Make sure user has a name property
+          parsedUser = {
+            name: parsed?.name || parsed?.fullName || 'User',
+            email: parsed?.email || ''
+          };
+        } catch (e) {
+          console.error('Error parsing user JSON:', e);
+          parsedUser = { name: 'User', email: '' };
+        }
+      }
+      
+      return {
+        isLoggedIn: !!token,
+        user: parsedUser
+      };
+    } catch (error) {
+      console.error('Error reading auth data:', error);
+      return {
+        isLoggedIn: false,
+        user: { name: 'User', email: '' }
+      };
+    }
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setIsLoggedIn(false);
-    setUser({});
+    setAuth({
+      isLoggedIn: false,
+      user: { name: 'User', email: '' }
+    });
     navigate('/login');
   };
 
@@ -36,7 +60,7 @@ export default function Navbar() {
 
   const navLinks = [
     { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-    { path: '/create',    label: 'New Biodata', icon: '➕' },
+    { path: '/create', label: 'New Biodata', icon: '➕' },
   ];
 
   return (
@@ -66,7 +90,7 @@ export default function Navbar() {
 
           {/* Desktop Links */}
           <div className="hidden sm:flex items-center gap-1">
-            {isLoggedIn && navLinks.map(({ path, label, icon }) => (
+            {auth.isLoggedIn && navLinks.map(({ path, label, icon }) => (
               <Link key={path} to={path}>
                 <motion.div
                   whileHover={{ scale: 1.03 }}
@@ -79,7 +103,6 @@ export default function Navbar() {
                 >
                   <span>{icon}</span>
                   <span>{label}</span>
-                  {/* Active indicator dot */}
                   {isActive(path) && (
                     <motion.span
                       layoutId="activeNavDot"
@@ -93,15 +116,15 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            {isLoggedIn ? (
+            {auth.isLoggedIn ? (
               <>
                 {/* User pill */}
                 <div className="hidden sm:flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-full px-3 py-1.5">
                   <div className="w-6 h-6 rounded-full bg-rose-800 flex items-center justify-center text-white text-xs font-bold">
-                    {(user.name || 'U')[0].toUpperCase()}
+                    {(auth.user?.name || 'U')[0]?.toUpperCase()}
                   </div>
                   <span className="text-sm font-medium text-stone-700 max-w-24 truncate">
-                    {user.name || user.email || 'User'}
+                    {auth.user?.name || auth.user?.email || 'User'}
                   </span>
                 </div>
 
@@ -176,11 +199,11 @@ export default function Navbar() {
               {/* User info row */}
               <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100">
                 <div className="w-9 h-9 rounded-full bg-rose-800 flex items-center justify-center text-white font-bold">
-                  {(user.name || 'U')[0].toUpperCase()}
+                  {(auth.user?.name || 'U')[0]?.toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-stone-800">{user.name || 'User'}</p>
-                  <p className="text-xs text-stone-400">{user.email || ''}</p>
+                  <p className="text-sm font-semibold text-stone-800">{auth.user?.name || 'User'}</p>
+                  <p className="text-xs text-stone-400">{auth.user?.email || ''}</p>
                 </div>
               </div>
 
@@ -207,7 +230,10 @@ export default function Navbar() {
               {/* Logout */}
               <div className="px-4 py-3 border-t border-stone-100">
                 <button
-                  onClick={() => { setMenuOpen(false); handleLogout(); }}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
                   className="w-full flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                 >
                   <span>🚪</span>

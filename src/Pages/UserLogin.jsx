@@ -26,15 +26,37 @@ const Login = () => {
 
         mutate(formData, {
             onSuccess: (response) => {
-                // ✅ SAVE BOTH TOKEN AND USER DATA
+                // 🔍 DEBUG - Log the entire response
+                console.log("🔍 LOGIN RESPONSE:", response);
+                console.log("🔍 response.data:", response.data);
+                
                 const token = response.data.token;
                 const user = response.data.user;
                 
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", JSON.stringify(user));
+                console.log("🔍 Token:", token);
+                console.log("🔍 User object:", user);
                 
-                alert("Login Successful ❤️");
-                navigate("/dashboard");
+                // Save token
+                localStorage.setItem("token", token);
+                
+                // ✅ Save user with fallback
+                if (user) {
+                    console.log("✅ Saving user:", user);
+                    localStorage.setItem("user", JSON.stringify(user));
+                } else {
+                    console.warn("⚠️ No user data in response!");
+                    // Create a basic user object
+                    const basicUser = { 
+                        name: formData.email.split('@')[0], // Use email username as name
+                        email: formData.email 
+                    };
+                    localStorage.setItem("user", JSON.stringify(basicUser));
+                }
+                
+                // Force reload to pick up localStorage changes
+                setTimeout(() => {
+                    window.location.href = "/dashboard";
+                }, 500);
             },
         });
     };
@@ -112,6 +134,25 @@ const Login = () => {
 
                         </div>
                     </div>
+
+                    {/* Sign Up Link */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="flex items-center justify-center gap-1 text-sm"
+                    >
+                        <span className="text-gray-600">Don't have an account?</span>
+                        <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate('/register')}
+                            className="font-semibold text-pink-600 hover:text-pink-700 transition-colors cursor-pointer"
+                        >
+                            Sign Up
+                        </motion.button>
+                    </motion.div>
 
                     {/* Button */}
                     <motion.button
